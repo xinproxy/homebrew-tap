@@ -1,6 +1,4 @@
-# homebrew-tap
-
-## xin: xin isn't nginx
+# xin: xin isn't nginx
 
 Homebrew tap for [xin](https://www.xinproxy.com),
 an nginx-compatible reverse proxy.
