@@ -95,6 +95,16 @@ class Xin < Formula
     # #{HOMEBREW_PREFIX}/etc/xin/, parallel to how Homebrew's own nginx
     # formula keeps its sample config under #{HOMEBREW_PREFIX}/etc/nginx/.
     (etc/"xin").install "share/doc/xin/xin.conf" => "nginx.conf.default"
+    # The shipped sample assumes the Linux package layout: logs under
+    # /var/log/xin (root-owned, does not exist here) and listen 80 (needs
+    # root). Rewrite the sample for the Homebrew environment the same way
+    # homebrew-core's nginx formula does: logs under #{var}, port 8080, so
+    # a user-run `brew services start xin` works out of the box.
+    inreplace etc/"xin/nginx.conf.default" do |sample|
+      sample.gsub! "/var/log/xin", "#{var}/log/xin"
+      sample.gsub! "listen 80 default_server;", "listen 8080 default_server;"
+      sample.gsub! "listen [::]:80 default_server;", "listen [::]:8080 default_server;"
+    end
   end
 
   def post_install
@@ -105,6 +115,7 @@ class Xin < Formula
     # a tool that reads the exact same configuration language.
     config = etc/"xin/nginx.conf"
     config.write((etc/"xin/nginx.conf.default").read) unless config.exist?
+    (var/"log/xin").mkpath
   end
 
   service do
