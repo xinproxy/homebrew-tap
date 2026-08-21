@@ -107,7 +107,9 @@ class Xin < Formula
     # install` from a tarball built before that fix will fail here, same as
     # it would for any other file this formula expects and the tarball
     # doesn't carry.
-    pkgshare.install "share/xin/html"
+    # Guarded: the 0.1.4 tarballs predate the landing page. At the first
+    # release whose tarball carries it, this picks it up automatically.
+    pkgshare.install "share/xin/html" if (buildpath/"share/xin/html").exist?
     # The shipped sample assumes the Linux package layout: logs under
     # /var/log/xin (root-owned, does not exist here), listen 80 (needs
     # root), and a docroot under /usr/share (not writable by a non-root
@@ -119,8 +121,13 @@ class Xin < Formula
       sample.gsub! "/var/log/xin", "#{var}/log/xin"
       sample.gsub! "listen 80 default_server;", "listen 8080 default_server;"
       sample.gsub! "listen [::]:80 default_server;", "listen [::]:8080 default_server;"
-      sample.gsub! "root /usr/share/xin/html;", "root #{opt_pkgshare}/html;"
     end
+    # Separate, unaudited pass for the docroot: 0.1.4's sample has no root
+    # directive, and inreplace's block form raises when a pattern finds
+    # nothing. Plain Ruby keeps it optional until the landing page ships.
+    sample = etc/"xin/xin.conf.default"
+    rewritten = sample.read.gsub("root /usr/share/xin/html;", "root #{opt_pkgshare}/html;")
+    sample.atomic_write(rewritten)
   end
 
   def post_install
