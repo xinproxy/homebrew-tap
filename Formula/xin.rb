@@ -94,13 +94,13 @@ class Xin < Formula
     # decides what you proxy for you. `etc` here is
     # #{HOMEBREW_PREFIX}/etc/xin/, parallel to how Homebrew's own nginx
     # formula keeps its sample config under #{HOMEBREW_PREFIX}/etc/nginx/.
-    (etc/"xin").install "share/doc/xin/xin.conf" => "nginx.conf.default"
+    (etc/"xin").install "share/doc/xin/xin.conf" => "xin.conf.default"
     # The shipped sample assumes the Linux package layout: logs under
     # /var/log/xin (root-owned, does not exist here) and listen 80 (needs
     # root). Rewrite the sample for the Homebrew environment the same way
     # homebrew-core's nginx formula does: logs under #{var}, port 8080, so
     # a user-run `brew services start xin` works out of the box.
-    inreplace etc/"xin/nginx.conf.default" do |sample|
+    inreplace etc/"xin/xin.conf.default" do |sample|
       sample.gsub! "/var/log/xin", "#{var}/log/xin"
       sample.gsub! "listen 80 default_server;", "listen 8080 default_server;"
       sample.gsub! "listen [::]:80 default_server;", "listen [::]:8080 default_server;"
@@ -108,13 +108,13 @@ class Xin < Formula
   end
 
   def post_install
-    # Seed a real, editable nginx.conf from the sample on first install
+    # Seed a real, editable xin.conf from the sample on first install
     # only — an upgrade must never overwrite a config the user has since
-    # edited. This mirrors nginx's own Homebrew formula (nginx.conf vs
-    # nginx.conf.default) rather than inventing a different convention for
-    # a tool that reads the exact same configuration language.
-    config = etc/"xin/nginx.conf"
-    config.write((etc/"xin/nginx.conf.default").read) unless config.exist?
+    # edited. Same seed-vs-default convention as nginx's Homebrew formula,
+    # but under xin's own name: the config file is xin.conf, matching the
+    # /etc/xin/xin.conf default everywhere else xin ships.
+    config = etc/"xin/xin.conf"
+    config.write((etc/"xin/xin.conf.default").read) unless config.exist?
     (var/"log/xin").mkpath
   end
 
@@ -125,7 +125,7 @@ class Xin < Formula
     # to supervise: one long-lived foreground process, no `-g "daemon
     # off;"` needed (and none accepted; see that README's note that `-g` is
     # parsed but not implemented).
-    run [opt_bin/"xin", "-c", etc/"xin/nginx.conf"]
+    run [opt_bin/"xin", "-c", etc/"xin/xin.conf"]
     keep_alive true
     log_path var/"log/xin/access.log"
     error_log_path var/"log/xin/xin.log"
@@ -152,7 +152,7 @@ class Xin < Formula
     # compatibility claim rests on (packaging/release-notes.md) — `xin -t`
     # on a config it accepts must actually accept it, and refuse anything it
     # doesn't understand rather than silently ignoring it.
-    (testpath/"nginx.conf").write <<~NGINX
+    (testpath/"xin.conf").write <<~NGINX
       events {}
       http {
         server {
@@ -161,7 +161,7 @@ class Xin < Formula
         }
       }
     NGINX
-    system bin/"xin", "-t", "-c", testpath/"nginx.conf"
+    system bin/"xin", "-t", "-c", testpath/"xin.conf"
 
     # `-v` is nginx's own "print version and exit" flag; xin implements the
     # same flag (xin-facade-nginx/src/cli.rs) and should report the version
@@ -181,9 +181,9 @@ class Xin < Formula
       https://xinproxy.com.
 
       A sample config was installed to:
-        #{etc}/xin/nginx.conf.default
+        #{etc}/xin/xin.conf.default
       and copied, on first install only, to:
-        #{etc}/xin/nginx.conf
+        #{etc}/xin/xin.conf
       which is the file `brew services start xin` actually runs. xin reads
       whatever that file contains, exactly as nginx reads nginx.conf —
       edit it in place; nothing here regenerates it on upgrade.
@@ -194,7 +194,7 @@ class Xin < Formula
       port. For local testing, point your config at a port >= 1024 (the
       sample above uses 8080). To actually serve 80/443, run xin directly
       as root, outside brew services:
-        sudo #{opt_bin}/xin -c #{etc}/xin/nginx.conf
+        sudo #{opt_bin}/xin -c #{etc}/xin/xin.conf
       which gets you the real ports but none of brew services' supervision
       (restart-on-crash, launchd registration). There is no privileged-
       broker/capability-drop model on macOS the way there is on Linux —
