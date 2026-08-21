@@ -95,15 +95,31 @@ class Xin < Formula
     # #{HOMEBREW_PREFIX}/etc/xin/, parallel to how Homebrew's own nginx
     # formula keeps its sample config under #{HOMEBREW_PREFIX}/etc/nginx/.
     (etc/"xin").install "share/doc/xin/xin.conf" => "xin.conf.default"
+    # The welcome page the sample's `location = /` roots at (decision log
+    # D93, same path the Docker images and the .deb/.rpm use). pkgshare is
+    # #{HOMEBREW_PREFIX}/share/xin -- Homebrew's own writable-share
+    # convention, parallel to etc/"xin" above.
+    #
+    # NOTE: as of this writing the published tarball (packaging/matrix/
+    # pack.sh) does not yet include share/xin/html/index.html -- that is a
+    # tracked follow-up on the release-engineering side. Once it does, this
+    # line picks it up with no formula change needed; until then `brew
+    # install` from a tarball built before that fix will fail here, same as
+    # it would for any other file this formula expects and the tarball
+    # doesn't carry.
+    pkgshare.install "share/xin/html"
     # The shipped sample assumes the Linux package layout: logs under
-    # /var/log/xin (root-owned, does not exist here) and listen 80 (needs
-    # root). Rewrite the sample for the Homebrew environment the same way
-    # homebrew-core's nginx formula does: logs under #{var}, port 8080, so
-    # a user-run `brew services start xin` works out of the box.
+    # /var/log/xin (root-owned, does not exist here), listen 80 (needs
+    # root), and a docroot under /usr/share (not writable by a non-root
+    # `brew install`). Rewrite the sample for the Homebrew environment the
+    # same way homebrew-core's nginx formula does: logs under #{var}, port
+    # 8080, docroot under #{opt_pkgshare}, so a user-run `brew services
+    # start xin` works out of the box.
     inreplace etc/"xin/xin.conf.default" do |sample|
       sample.gsub! "/var/log/xin", "#{var}/log/xin"
       sample.gsub! "listen 80 default_server;", "listen 8080 default_server;"
       sample.gsub! "listen [::]:80 default_server;", "listen [::]:8080 default_server;"
+      sample.gsub! "root /usr/share/xin/html;", "root #{opt_pkgshare}/html;"
     end
   end
 
