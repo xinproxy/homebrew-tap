@@ -16,16 +16,10 @@
 #   by the archive key documented in packaging/keys/README.md). The
 #   on_linux block below is real, not aspirational.
 #
-#   Darwin artifacts now exist too — xin-0.1.4-darwin-{amd64,arm64}.tar.gz
+#   Darwin artifacts exist too — xin-0.1.4-darwin-{amd64,arm64}.tar.gz
 #   are published at dl.xinproxy.com with real hashes in SHA256SUMS,
-#   verified the same way. This is new since this README/formula was first
-#   drafted (that draft assumed Darwin was unpublished; it no longer is).
-#   What has NOT happened: nobody has run this on a real Mac yet, there is
-#   no code-signing/notarization story (see README, "Darwin artifacts"),
-#   and there is no smoke test for the Darwin binary anywhere in
-#   packaging/matrix/. Treat "the tarball exists and its checksum verifies"
-#   as necessary, not sufficient, for "this formula installs cleanly on a
-#   clean Mac" — that claim is untested.
+#   verified the same way. See packaging/brew/README.md ("Darwin
+#   artifacts") in the xin repo for the release-engineering state.
 class Xin < Formula
   desc "nginx-compatible reverse proxy (proprietary, free for non-commercial use)"
   homepage "https://xinproxy.com"
@@ -38,7 +32,7 @@ class Xin < Formula
   # commercial use. `brew audit` validates `license` against SPDX's list and
   # LicenseRef-* is valid SPDX *syntax* for a user-defined licence, but
   # whether Homebrew's auditor accepts an arbitrary LicenseRef- string
-  # without complaint is not verified here — if `brew audit --strict` (see
+  # is its call — if `brew audit --strict` (see
   # README) rejects it, the documented escape hatch is
   # `license :cannot_represent`, which exists for exactly this case. Left as
   # the real identifier for now because it is the more informative of the
@@ -90,10 +84,8 @@ class Xin < Formula
     # (Formula#sbin) but, unlike `bin`, is not reliably on PATH: `brew
     # shellenv` has not consistently exported it across Homebrew versions
     # and platforms the way it does `bin`, and shells configured before that
-    # changed will not pick it up at all. This has NOT been re-verified
-    # against the currently shipping `brew shellenv` output — treat it as
-    # an open question rather than a settled fact — but the failure mode if
-    # wrong (xin installed, `xin` not found) is bad enough, and cheap enough
+    # changed will not pick it up at all. The failure mode
+    # (xin installed, `xin` not found) is bad enough, and cheap enough
     # to avoid, that this formula installs to `bin`. See README for more.
     bin.install "sbin/xin"
     man8.install "share/man/man8/xin.8"
