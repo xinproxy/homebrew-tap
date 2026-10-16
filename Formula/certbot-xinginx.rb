@@ -2,9 +2,9 @@ class CertbotXinginx < Formula
   desc "Xinginx authenticator and installer plugin for Certbot"
   homepage "https://github.com/xinproxy/certbot/tree/main/certbot-xin"
   url "https://github.com/xinproxy/certbot/archive/1e4a22163a0805bfafc09d0e57740304db5f6b6e.tar.gz"
-  sha256 "d034a756977eb3aecc29b1a70516369f81ab4bd686e75b9b7710ecd80085163f"
   version "5.9.0"
-  license "Apache-2.0 AND MIT"
+  sha256 "d034a756977eb3aecc29b1a70516369f81ab4bd686e75b9b7710ecd80085163f"
+  license all_of: ["Apache-2.0", "MIT"]
 
   depends_on "certbot"
   depends_on "xinginx"
@@ -24,7 +24,7 @@ class CertbotXinginx < Formula
     (bin/"certbot-xinginx").write <<~SH
       #!/bin/sh
       export PYTHONPATH="#{opt_libexec}/plugin${PYTHONPATH:+:$PYTHONPATH}"
-      exec "#{Formula["certbot"].opt_libexec}/bin/certbot" "$@"
+      exec "#{formula_opt_libexec("certbot")}/bin/certbot" "$@"
     SH
   end
 

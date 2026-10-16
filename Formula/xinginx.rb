@@ -2,7 +2,7 @@ class Xinginx < Formula
   desc "Memory-safe reverse proxy with nginx-style configuration"
   homepage "https://xinproxy.com"
   version "0.2.1"
-  license "LicenseRef-xin-noncommercial"
+  license :cannot_represent
 
   on_macos do
     on_arm do
@@ -37,24 +37,25 @@ class Xinginx < Formula
 
     sample = etc/"xinginx/xinginx.conf.default"
     config = sample.read
-      .gsub("/var/log/xin", "#{var}/log/xinginx")
-      .gsub("/var/run/xin.pid", "#{var}/run/xinginx.pid")
-      .gsub("/run/xin.pid", "#{var}/run/xinginx.pid")
-      .gsub("listen 80 default_server;", "listen 8080 default_server;")
-      .gsub("listen [::]:80 default_server;", "listen [::]:8080 default_server;")
-      .gsub("root /usr/local/www/xin;", "root #{opt_pkgshare}/html;")
-      .gsub("root /var/www/html;", "root #{opt_pkgshare}/html;")
-      .gsub("include /etc/xin/mime.types;", "include #{etc}/xinginx/mime.types;")
-      .gsub("include mime.types;", "include #{etc}/xinginx/mime.types;")
+                   .gsub("/var/log/xin", "#{var}/log/xinginx")
+                   .gsub("/var/run/xin.pid", "#{var}/run/xinginx.pid")
+                   .gsub("/run/xin.pid", "#{var}/run/xinginx.pid")
+                   .gsub("listen 80 default_server;", "listen 8080 default_server;")
+                   .gsub("listen [::]:80 default_server;", "listen [::]:8080 default_server;")
+                   .gsub("root /usr/local/www/xin;", "root #{opt_pkgshare}/html;")
+                   .gsub("root /var/www/html;", "root #{opt_pkgshare}/html;")
+                   .gsub("include /etc/xin/mime.types;", "include #{etc}/xinginx/mime.types;")
+                   .gsub("include mime.types;", "include #{etc}/xinginx/mime.types;")
     sample.atomic_write(config)
   end
 
-  def post_install
-    config = etc/"xinginx/xinginx.conf"
-    config.write((etc/"xinginx/xinginx.conf.default").read) unless config.exist?
-    (var/"log/xinginx").mkpath
-    (var/"run").mkpath
-    (var/"lib/xinginx").mkpath
+  post_install_steps do
+    unless_path_exists "xinginx/xinginx.conf", base: :etc do
+      copy "xinginx/xinginx.conf.default", "xinginx/xinginx.conf", source_base: :etc, target_base: :etc
+    end
+    mkdir_p "log/xinginx", base: :var
+    mkdir_p "run", base: :var
+    mkdir_p "lib/xinginx", base: :var
   end
 
   service do
@@ -64,6 +65,17 @@ class Xinginx < Formula
     error_log_path var/"log/xinginx/error.log"
     working_dir HOMEBREW_PREFIX
     environment_variables STATE_DIRECTORY: var/"lib/xinginx"
+  end
+
+  def caveats
+    <<~EOS
+      The active configuration is #{etc}/xinginx/xinginx.conf. Upgrades preserve it;
+      compare it with xinginx.conf.default to adopt new defaults. The included
+      service listens on port 8080 so it can run without root privileges.
+
+      Xin is free for non-commercial use or evaluation. Other commercial use
+      requires a written license; read #{doc}/LICENSE and contact licensing@xinproxy.com.
+    EOS
   end
 
   test do
@@ -78,16 +90,5 @@ class Xinginx < Formula
     CONFIG
     system bin/"xinginx", "-t", "-c", testpath/"xinginx.conf"
     assert_match version.to_s, shell_output("#{bin}/xinginx -v 2>&1")
-  end
-
-  def caveats
-    <<~EOS
-      The active configuration is #{etc}/xinginx/xinginx.conf. Upgrades preserve it;
-      compare it with xinginx.conf.default to adopt new defaults. The included
-      service listens on port 8080 so it can run without root privileges.
-
-      Xin is free for non-commercial use or evaluation. Other commercial use
-      requires a written license; read #{doc}/LICENSE and contact licensing@xinproxy.com.
-    EOS
   end
 end
