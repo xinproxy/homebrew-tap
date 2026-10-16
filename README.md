@@ -2,12 +2,13 @@
 
 Homebrew tap for [xin](https://xinproxy.com), a memory-safe reverse proxy
 with nginx-style configuration and a built-in MCP gateway. The formula is
-pinned to **0.1.11** for macOS and Linux on Intel and ARM.
+pinned to **0.2.1** for macOS and Linux on Intel and ARM.
 
 ```sh
 brew tap xinproxy/tap
 brew trust xinproxy/tap   # Homebrew 6.0+ requires trusting third-party taps
 brew install xinproxy/tap/xin
+# or: brew install xinproxy/tap/xinginx
 brew install xinproxy/tap/certbot-xin
 brew services start xin
 ```
