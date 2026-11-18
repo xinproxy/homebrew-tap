@@ -1,28 +1,28 @@
 class Xinginx < Formula
   desc "Memory-safe reverse proxy with nginx-style configuration"
   homepage "https://xinproxy.com"
-  version "0.2.1"
+  version "0.2.9"
   license :cannot_represent
 
   on_macos do
     on_arm do
-      url "https://dl.xinproxy.com/xinginx/0.2.1/xinginx-0.2.1-darwin-arm64.tar.gz"
-      sha256 "6662c72f76556bc612e3628b53f7b28e916bda52b853874407dfe9befba03700"
+      url "https://dl.xinproxy.com/xinginx/0.2.9/xinginx-0.2.9-darwin-arm64.tar.gz"
+      sha256 "07a17b6335163c1c03675400841bd3016e97a5aad641f954eb941c82b5e9bae7"
     end
     on_intel do
-      url "https://dl.xinproxy.com/xinginx/0.2.1/xinginx-0.2.1-darwin-amd64.tar.gz"
-      sha256 "0ccd1f2490d5b680a8c40561c14f09d78cfdc3cd7df5b86c09afc7e64a348c18"
+      url "https://dl.xinproxy.com/xinginx/0.2.9/xinginx-0.2.9-darwin-amd64.tar.gz"
+      sha256 "232b3e2801e02a28ef08b0da48578f15a1f48adb73a23ad826c99d6d4195f9f7"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://dl.xinproxy.com/xinginx/0.2.1/xinginx-0.2.1-linux-arm64-musl.tar.gz"
-      sha256 "840b0f0643ca0342a57a5fa09b74ded54fb9f8aaf9f0ca84adf923812cab23cd"
+      url "https://dl.xinproxy.com/xinginx/0.2.9/xinginx-0.2.9-linux-arm64-musl.tar.gz"
+      sha256 "3a99247915d352191f5b91337870ecb485867cc362c5342fd5aa471fdfa12c2e"
     end
     on_intel do
-      url "https://dl.xinproxy.com/xinginx/0.2.1/xinginx-0.2.1-linux-amd64-musl.tar.gz"
-      sha256 "b69cfa9b684aa8988731cbc9da1b76702c0791ac7e941865e8f27981d0df67e9"
+      url "https://dl.xinproxy.com/xinginx/0.2.9/xinginx-0.2.9-linux-amd64-musl.tar.gz"
+      sha256 "f072bac4a308dbfd42c05fa81d95920b0f3da81112b804a7180b5375a75e98db"
     end
   end
 
